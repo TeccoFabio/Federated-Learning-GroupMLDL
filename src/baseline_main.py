@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 # Python version: 3.6
 
+# Run Configuration
+# --model=cnn --dataset=cifar --iid=1 --epochs=10
+
 # - smart progress bar
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -12,7 +15,8 @@ from torch.utils.data import DataLoader
 from utils import get_dataset
 from options import args_parser
 from update import test_inference
-from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
+#from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
+from models import CNNCifar
 
 
 if __name__ == '__main__':
@@ -27,20 +31,20 @@ if __name__ == '__main__':
     # BUILD MODEL
     if args.model == 'cnn':
         # Convolutional neural netork
-        if args.dataset == 'mnist':
-            global_model = CNNMnist(args=args)
-        elif args.dataset == 'fmnist':
-            global_model = CNNFashion_Mnist(args=args)
-        elif args.dataset == 'cifar':
+        # if args.dataset == 'mnist':
+        #     global_model = CNNMnist(args=args)
+        # elif args.dataset == 'fmnist':
+        #     global_model = CNNFashion_Mnist(args=args)
+        if args.dataset == 'cifar':
             global_model = CNNCifar(args=args)
-    elif args.model == 'mlp':
-        # Multi-layer preceptron
-        img_size = train_dataset[0][0].shape
-        len_in = 1
-        for x in img_size:
-            len_in *= x
-            global_model = MLP(dim_in=len_in, dim_hidden=64,
-                               dim_out=args.num_classes)
+    # elif args.model == 'mlp':
+    #     # Multi-layer preceptron
+    #     img_size = train_dataset[0][0].shape
+    #     len_in = 1
+    #     for x in img_size:
+    #         len_in *= x
+    #         global_model = MLP(dim_in=len_in, dim_hidden=64,
+    #                            dim_out=args.num_classes)
     else:
         exit('Error: unrecognized model')
 
@@ -51,6 +55,7 @@ if __name__ == '__main__':
 
     # Training
     # Set optimizer and criterion
+    # - Da aggiungere?
     if args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(global_model.parameters(), lr=args.lr,
                                     momentum=0.5)
