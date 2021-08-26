@@ -15,7 +15,7 @@ from tensorboardX import SummaryWriter
 
 from options import args_parser
 from update import LocalUpdate, test_inference
-from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
+from models import CNNCifar#, MLP, CNNMnist, CNNFashion_Mnist,
 from utils import get_dataset, average_weights, exp_details
 
 
@@ -24,40 +24,39 @@ if __name__ == '__main__':
 
     # define paths
     path_project = os.path.abspath('..')
-
-    # - The SummaryWriter class is your main entry to log data for consumption and visualization by TensorBoard
     logger = SummaryWriter('../logs')
 
     args = args_parser()
     exp_details(args)
 
-    if args.gpu:
-        torch.cuda.set_device(args.gpu)
+    if args.gpu_id:
+        torch.cuda.set_device(args.gpu_id)
     device = 'cuda' if args.gpu else 'cpu'
 
     # load dataset and user groups
     train_dataset, test_dataset, user_groups = get_dataset(args)
 
     # BUILD MODEL
-    if args.model == 'cnn':
+    #if args.model == 'cnn':
         # Convolutional neural netork
-        if args.dataset == 'mnist':
-            global_model = CNNMnist(args=args)
-        elif args.dataset == 'fmnist':
-            global_model = CNNFashion_Mnist(args=args)
-        elif args.dataset == 'cifar':
-            global_model = CNNCifar(args=args)
+        #if args.dataset == 'mnist':
+         #   global_model = CNNMnist(args=args)
+       # elif args.dataset == 'fmnist':
+        #    global_model = CNNFashion_Mnist(args=args)
+       # elif
+       # args.dataset == 'cifar':
+    global_model = CNNCifar(args=args)
 
-    elif args.model == 'mlp':
+    #elif args.model == 'mlp':
         # Multi-layer preceptron
-        img_size = train_dataset[0][0].shape
-        len_in = 1
-        for x in img_size:
-            len_in *= x
-            global_model = MLP(dim_in=len_in, dim_hidden=64,
-                               dim_out=args.num_classes)
-    else:
-        exit('Error: unrecognized model')
+       # img_size = train_dataset[0][0].shape
+       # len_in = 1
+        #for x in img_size:
+         #   len_in *= x
+          #  global_model = MLP(dim_in=len_in, dim_hidden=64,
+           #                    dim_out=args.num_classes)
+    #else:
+     #   exit('Error: unrecognized model')
 
     # Set the model to train and send it to device.
     global_model.to(device)
@@ -79,8 +78,6 @@ if __name__ == '__main__':
         print(f'\n | Global Training Round : {epoch+1} |\n')
 
         global_model.train()
-
-        # - O 1 o valore_ignoto
         m = max(int(args.frac * args.num_users), 1)
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
 
@@ -131,28 +128,25 @@ if __name__ == '__main__':
                args.local_ep, args.local_bs)
 
     with open(file_name, 'wb') as f:
-        # - The pickle module implements binary protocols for serializing and de-serializing a Python object structure.
-        # - “Pickling” is the process whereby a Python object hierarchy is converted into a byte stream
         pickle.dump([train_loss, train_accuracy], f)
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # PLOTTING (optional)
-    # import matplotlib
-    # import matplotlib.pyplot as plt
-    # matplotlib.use('Agg')
+    import matplotlib
+    import matplotlib.pyplot as plt
+    matplotlib.use('Agg')
 
     # Plot Loss curve
-    # plt.figure()
-    # plt.title('Training Loss vs Communication rounds')
-    # plt.plot(range(len(train_loss)), train_loss, color='r')
-    # plt.ylabel('Training loss')
-    # plt.xlabel('Communication Rounds')
-    # plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
-    #             format(args.dataset, args.model, args.epochs, args.frac,
-    #                    args.iid, args.local_ep, args.local_bs))
-    #
-    # # Plot Average Accuracy vs Communication rounds
+    plt.figure()
+    plt.title('Training Loss vs Communication rounds')
+    plt.plot(range(len(train_loss)), train_loss, color='r')
+    plt.ylabel('Training loss')
+    plt.xlabel('Communication Rounds')
+    plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
+                 format(args.dataset, args.model, args.epochs, args.frac,
+                       args.iid, args.local_ep, args.local_bs))
+        # # Plot Average Accuracy vs Communication rounds
     # plt.figure()
     # plt.title('Average Accuracy vs Communication rounds')
     # plt.plot(range(len(train_accuracy)), train_accuracy, color='k')
