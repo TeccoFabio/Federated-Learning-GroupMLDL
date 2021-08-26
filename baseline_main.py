@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import DataLoader
 
-from utils import get_dataset
+from utils import get_dataset, central_mod_details
 from options import args_parser
 from update import test_inference
 from models import CNNCifar
@@ -17,10 +17,15 @@ from models import CNNCifar
 
 if __name__ == '__main__':
     args = args_parser()
+    global_model = CNNCifar(args=args)
+   # if args.gpu:
+    #    torch.cuda.set_device(args.gpu)
+    #device = 'cuda' if args.gpu else 'cpu'
     if args.gpu:
-        torch.cuda.set_device(args.gpu)
-    device = 'cuda' if args.gpu else 'cpu'
-
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        global_model.to(device)
+    else:
+        device = torch.device("cpu")
     # load datasets
     train_dataset, test_dataset, _ = get_dataset(args)
 
@@ -32,7 +37,7 @@ if __name__ == '__main__':
        # elif args.dataset == 'fmnist':
         #    global_model = CNNFashion_Mnist(args=args)
       #  elif args.dataset == 'cifar':
-    global_model = CNNCifar(args=args)
+   # global_model = CNNCifar(args=args)
    # elif args.model == 'mlp':
         # Multi-layer preceptron
        # img_size = train_dataset[0][0].shape
@@ -48,6 +53,7 @@ if __name__ == '__main__':
     global_model.to(device)
     global_model.train()
     print(global_model)
+    central_mod_details(args)
 
     # Training
     # Set optimizer and criterion
@@ -92,6 +98,7 @@ if __name__ == '__main__':
     # Plot loss
     plt.figure()
     plt.plot(range(len(epoch_loss)), epoch_loss)
+    plt.title('Train Loss vs. no. of Epochs')
     plt.xlabel('epochs')
     plt.ylabel('Train loss')
     plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,

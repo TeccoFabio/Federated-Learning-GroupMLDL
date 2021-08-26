@@ -107,3 +107,12 @@ def exp_details(args):
     print(f'    Local Batch size   : {args.local_bs}')
     print(f'    Local Epochs       : {args.local_ep}\n')
     return
+
+
+def central_mod_details(args):
+    print('\nExperimental details:')
+    print(f'   Model   : {args.model}')
+    print(f'   Optimizer   : {args.optimizer}')
+    print(f'   Learning Rate   : {args.lr}')
+    print(f'   Global Rounds   : {args.epochs}')
+    return
