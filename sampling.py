@@ -159,8 +159,20 @@ def cifar_iid(dataset, num_users):
         all_idxs = list(set(all_idxs) - dict_users[i])
     return dict_users
 
-
 def cifar_noniid(dataset, num_users):
+    idxs = np.random.permutation(np.array(dataset.targets)[0, :])
+    min_size = 0
+    while min_size < 10:
+        proportions = np.random.dirichlet(np.repeat(0.5, num_users))
+        proportions = proportions/proportions.sum()
+        min_size = np.min(proportions*len(idxs))
+    proportions = (np.cumsum(proportions)*len(idxs)).astype(int)[:-1]
+    batch_idxs = np.split(idxs, proportions)
+    dict_users = {i: batch_idxs[i] for i in range(num_users)}
+
+    return dict_users
+
+def cifar_noniid_0(dataset, num_users):
     """
     Sample non-I.I.D client data from CIFAR10 dataset
     :param dataset:
