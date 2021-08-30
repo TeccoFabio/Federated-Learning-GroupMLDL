@@ -160,7 +160,7 @@ def cifar_iid(dataset, num_users):
     return dict_users
 
 def cifar_noniid(dataset, num_users):
-    idxs = np.random.permutation(np.array(dataset.targets)[0, :])
+    idxs = np.random.permutation(np.array(dataset.targets).shape[0])
     min_size = 0
     while min_size < 10:
         proportions = np.random.dirichlet(np.repeat(0.5, num_users))
