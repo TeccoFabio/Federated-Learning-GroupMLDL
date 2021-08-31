@@ -44,7 +44,7 @@ def get_dataset(args):
 
         else:
             # Chose equal splits for every user
-            user_groups = cifar_noniid(train_dataset, args.num_users, args.apha)
+            user_groups = cifar_noniid(train_dataset, args.num_users, args.alpha)
 
    # elif args.dataset == 'mnist' or 'fmnist':
        # if args.dataset == 'mnist':
