@@ -51,7 +51,7 @@ class LocalUpdate(object):
                                 batch_size=int(len(idxs_test)/10), shuffle=False)
         return trainloader, validloader, testloader
 
-    def update_weights(self, model, global_round):
+    def fed_avg(self, model, global_round):
         # Set mode to train model
         model.train()
         epoch_loss = []

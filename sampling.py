@@ -159,13 +159,12 @@ def cifar_iid(dataset, num_users):
         all_idxs = list(set(all_idxs) - dict_users[i])
     return dict_users
 
-
-def cifar_noniid(dataset, alpha, num_users):
+def cifar_noniid(dataset, num_users, alpha):
     idxs = np.random.permutation(np.array(dataset.targets).shape[0])
     min_size = 0
     while min_size < 10:
         # np.random.seed(4)
-        proportions = np.random.dirichlet(np.repeat(alpha, num_users))
+        proportions = np.random.dirichlet(np.repeat(alpha*100, num_users))
         proportions = proportions/proportions.sum()
         min_size = np.min(proportions*len(idxs))
     proportions = (np.cumsum(proportions)*len(idxs)).astype(int)[:-1]
