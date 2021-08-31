@@ -25,7 +25,7 @@ def args_parser():
                         help='learning rate')
     parser.add_argument('--momentum', type=float, default=0.5,
                         help='SGD momentum (default: 0.5)')
-    parser.add_argument('--alpha', type=float, default=0.5,
+    parser.add_argument('--alpha', type=float, default=0.1,
                         help='alpha parameter of dirichlet distribution (default: 0.5)')
 
 
