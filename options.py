@@ -65,9 +65,6 @@ def args_parser():
                         help='rounds of early stopping')
     parser.add_argument('--verbose', type=int, default=1, help='verbose')
     parser.add_argument('--seed', type=int, default=1, help='random seed')
-    parser.add_argument('--alpha', type=float, default=10,
-                        help='alpha parameter of the Dirichlet distribution used to create  \
-                         a setting with non-iid users datasets')
     #parser.add_argument('--iid_dirichlet', type=int, default=0,
                #         help='using Dirichlet distribution to divide CIFAR10 between users')
 
