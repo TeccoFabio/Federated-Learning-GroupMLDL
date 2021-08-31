@@ -81,7 +81,7 @@ class CNNCifar(nn.Module):
         # 3 fully connected layers
         self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=120)
         self.fc2 = nn.Linear(in_features=120, out_features=84)
-        self.fc3 = nn.Linear(84, args.num_classes)
+        self.fc3 = nn.Linear(84, 10)
 
     def forward(self, x):
         # Note that relu6 is performing better than relu activation function! (see paper)
