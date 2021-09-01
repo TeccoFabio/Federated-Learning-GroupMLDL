@@ -7,17 +7,27 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 import torch
+import torchvision
 from torch.utils.data import DataLoader
-
+from torch.hub import load
 from utils import get_dataset, central_mod_details
 from options import args_parser
 from update import test_inference
-from models import CNNCifar
+from models import CNNCifar, LeNet5
 
 
 if __name__ == '__main__':
     args = args_parser()
-    global_model = CNNCifar(args=args)
+    if args.model == 'lenet':
+        global_model = LeNet5(args=args)
+    elif args.model == 'cnn':
+        global_model = CNNCifar(args=args)
+    elif args.model == 'resnet':
+        global_model = torchvision.models.resnet18(pretrained=True)
+        #global_model = load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True)
+
+
+
    # if args.gpu:
     #    torch.cuda.set_device(args.gpu)
     #device = 'cuda' if args.gpu else 'cpu'
@@ -95,6 +105,11 @@ if __name__ == '__main__':
         print('\nTrain loss:', loss_avg)
         epoch_loss.append(loss_avg)
 
+    # testing
+    test_acc, test_loss = test_inference(args, global_model, test_dataset)
+    print('Test on', len(test_dataset), 'samples')
+    print("Test Accuracy: {:.2f}%".format(100 * test_acc))
+
     # Plot loss
     plt.figure()
     plt.plot(range(len(epoch_loss)), epoch_loss)
@@ -104,7 +119,3 @@ if __name__ == '__main__':
     plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
                                                  args.epochs))
 
-    # testing
-    test_acc, test_loss = test_inference(args, global_model, test_dataset)
-    print('Test on', len(test_dataset), 'samples')
-    print("Test Accuracy: {:.2f}%".format(100*test_acc))

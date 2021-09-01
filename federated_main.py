@@ -11,11 +11,12 @@ import numpy as np
 from tqdm import tqdm
 
 import torch
+import torchvision
 from tensorboardX import SummaryWriter
 
 from options import args_parser
 from update import LocalUpdate, test_inference
-from models import CNNCifar#, MLP, CNNMnist, CNNFashion_Mnist,
+from models import CNNCifar, LeNet5
 from utils import get_dataset, average_weights, exp_details
 
 
@@ -47,7 +48,13 @@ if __name__ == '__main__':
         #    global_model = CNNFashion_Mnist(args=args)
        # elif
        # args.dataset == 'cifar':
-    global_model = CNNCifar(args=args)
+    if args.model == 'lenet':
+        global_model = LeNet5(args=args)
+    elif args.model == 'cnn':
+        global_model = CNNCifar(args=args)
+    elif args.model == 'resnet':
+        global_model = torchvision.models.resnet18(pretrained=True)
+    #global_model = CNNCifar(args=args)
 
     #elif args.model == 'mlp':
         # Multi-layer preceptron
