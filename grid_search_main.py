@@ -31,15 +31,27 @@ numpy.random.seed(seed)
 # load dataset
 dataset = get_dataset(args)
 # split into input (X) and output (Y) variables
-X = dataset[:, 0:8]
-Y = dataset[:, 8]
+all_idxs = torch.linspace(0, dataset.shape[0]-1, dataset.shape[0])
+first_half_idxs = all_idxs[:dataset.shape[0]/2]
+second_half_idxs = all_idxs[dataset.shape[0]/2:]
+X = dataset[first_half_idxs]
+Y = dataset[second_half_idxs]
 # create model
 model = global_model
 # define the grid search parameters
 batch_size = [10, 20, 40, 60, 80, 100]
+# add local batch_size
 epochs = [10, 50]
+# add local_epochs
 weight_constraint = [1, 2, 3, 4, 5]
 dropout_rate = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+# add learning_rate
+# add momentum
+# add alpha_Dirichlet
+# add num_users
+# add frac_C
+# add activation function (relu, leaky relu, relu6, etc.)
+# add random_seed
 param_grid = dict(batch_size=batch_size, epochs=epochs, dropout_rate=dropout_rate, weight_constraint=weight_constraint)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=3)
 grid_result = grid.fit(X, Y)
