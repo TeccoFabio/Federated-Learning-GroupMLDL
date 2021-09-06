@@ -122,7 +122,7 @@ class CNNCifar(nn.Module):
         x = self.pool1(F.leaky_relu(x)) # we can also try leaky relu
         x = self.conv2(x)
         x = self.batch2(x)
-        #x = self.drop2(x)
+        x = self.drop2(x)
         x = self.pool2(F.leaky_relu(x))
         # Flatten all dimensions
         x = torch.flatten(x, 1)
