@@ -19,8 +19,9 @@ from models import CNNCifar
 if __name__ == '__main__':
     args = args_parser()
     if args.gpu:
-        torch.cuda.set_device(args.gpu)
-    device = 'cuda' if args.gpu else 'cpu'
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device("cpu")
 
 # Function to create model, required for KerasClassifier
 global_model = CNNCifar(args=args)
