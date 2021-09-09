@@ -1,6 +1,7 @@
 # Use scikit-learn to grid search the batch size and epochs
 import numpy
 from sklearn.model_selection import GridSearchCV
+from torch.utils.data import Subset
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
@@ -29,13 +30,14 @@ global_model = CNNCifar(args=args)
 seed = 7
 numpy.random.seed(seed)
 # load dataset
-dataset = get_dataset(args)
+train_set, test_set, _ = get_dataset(args)
 # split into input (X) and output (Y) variables
-all_idxs = torch.linspace(0, dataset.shape[0]-1, dataset.shape[0])
-first_half_idxs = all_idxs[:dataset.shape[0]/2]
-second_half_idxs = all_idxs[dataset.shape[0]/2:]
-X = dataset[first_half_idxs]
-Y = dataset[second_half_idxs]
+first_half_idxs = torch.linspace(0, int(len(train_set)/2) - 1, int(len(train_set)/2))
+first_half_idxs = first_half_idxs.int()
+second_half_idxs = torch.linspace(int(len(train_set)/2), len(train_set) - 1, int(len(train_set)/2))
+second_half_idxs = second_half_idxs.int()
+X = Subset(train_set, first_half_idxs)
+Y = Subset(train_set, second_half_idxs)
 # create model
 model = global_model
 # define the grid search parameters
