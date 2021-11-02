@@ -95,7 +95,7 @@ class LeNet5(nn.Module):
         return F.log_softmax(x, dim=1)
 
 class CNNCifar(nn.Module):
-    def __init__(self, args):
+    def __init__(self, l1=120, l2=84):
         super(CNNCifar, self).__init__()
         # 1st convolutional layer, output size 28*28*6
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5)
@@ -110,9 +110,9 @@ class CNNCifar(nn.Module):
         # 2nd pooling layer, out size 16*5*5
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         # 3 fully connected layers
-        self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=120)
-        self.fc2 = nn.Linear(in_features=120, out_features=84)
-        self.fc3 = nn.Linear(84, 10)
+        self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=l1)
+        self.fc2 = nn.Linear(in_features=l1, out_features=l2)
+        self.fc3 = nn.Linear(l2, 10)
 
     def forward(self, x):
         # Note that relu6 is performing better than relu activation function! (see paper)
