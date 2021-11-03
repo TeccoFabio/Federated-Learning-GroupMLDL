@@ -2,16 +2,7 @@
 import numpy
 from sklearn.model_selection import GridSearchCV
 from torch.utils.data import Subset
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.wrappers.scikit_learn import KerasClassifier
-from models import CNNCifar
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-
 import torch
-from torch.utils.data import DataLoader
-
 from utils import get_dataset
 from options import args_parser
 from update import test_inference

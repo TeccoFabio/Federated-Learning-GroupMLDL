@@ -24,13 +24,7 @@ if __name__ == '__main__':
         global_model = CNNCifar(args=args)
     elif args.model == 'resnet':
         global_model = torchvision.models.resnet18(pretrained=True)
-        #global_model = load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True)
 
-
-
-   # if args.gpu:
-    #    torch.cuda.set_device(args.gpu)
-    #device = 'cuda' if args.gpu else 'cpu'
     if args.gpu:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         global_model.to(device)
@@ -38,26 +32,6 @@ if __name__ == '__main__':
         device = torch.device("cpu")
     # load datasets
     train_dataset, test_dataset, _ = get_dataset(args)
-
-    # BUILD MODEL
-   # if args.model == 'cnn':
-        #Convolutional neural netork
-      #  if args.dataset == 'mnist':
-        #    global_model = CNNMnist(args=args)
-       # elif args.dataset == 'fmnist':
-        #    global_model = CNNFashion_Mnist(args=args)
-      #  elif args.dataset == 'cifar':
-   # global_model = CNNCifar(args=args)
-   # elif args.model == 'mlp':
-        # Multi-layer preceptron
-       # img_size = train_dataset[0][0].shape
-       # len_in = 1
-       # for x in img_size:
-         #   len_in *= x
-          #  global_model = MLP(dim_in=len_in, dim_hidden=64,
-                  #             dim_out=args.num_classes)
-    #else:
-     #   exit('Error: unrecognized model')
 
     # Set the model to train and send it to device.
     global_model.to(device)
