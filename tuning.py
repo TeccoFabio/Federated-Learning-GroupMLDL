@@ -7,7 +7,6 @@
 from torch.utils.data import DataLoader
 from utils import get_dataset_tune
 
-
 from ray import tune
 from ray.tune import CLIReporter
 from ray.tune.schedulers import ASHAScheduler
@@ -27,17 +26,17 @@ class CNNCifar_tune(nn.Module):
     def __init__(self, l1=120, l2=84, k1=5, k2=5, d1=0.5, d2=0.5, d3=0.5, d4=0.5, p1=2, p2=2):
         super(CNNCifar_tune, self).__init__()
         # 1st convolutional layer, output size 28*28*6
-        self.conv1 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=k1)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5)#k1)
         self.batch1 = nn.BatchNorm2d(num_features=6)
-        self.drop1 = nn.Dropout2d(p=d1)
+        #self.drop1 = nn.Dropout2d(p=d1)
         # 1st pooling layer, output size 14*14*6 (we can also try maxpooling or minpooling while LeNet uses Avgpooling)
-        self.pool1 = nn.MaxPool2d(kernel_size=p1, stride=2)
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         # 2nd conv layer, out size 10*10*16
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=k2)
+        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)#k2)
         self.batch2 = nn.BatchNorm2d(num_features=16)
-        self.drop2 = nn.Dropout2d(p=d2)
+        #self.drop2 = nn.Dropout2d(p=d2)
         # 2nd pooling layer, out size 16*5*5
-        self.pool2 = nn.MaxPool2d(kernel_size=p2, stride=2)
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         # 3 fully connected layers
         self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=l1)
         self.drop3 = nn.Dropout2d(p=d3)
@@ -49,11 +48,11 @@ class CNNCifar_tune(nn.Module):
         # Note that relu6 is performing better than relu activation function! (see paper)
         x = self.conv1(x)
         x = self.batch1(x)
-        x = self.drop1(x)
+        #x = self.drop1(x)
         x = self.pool1(F.leaky_relu(x)) # we can also try leaky relu
         x = self.conv2(x)
         x = self.batch2(x)
-        x = self.drop2(x)
+        #x = self.drop2(x)
         x = self.pool2(F.leaky_relu(x))
         # Flatten all dimensions
         x = torch.flatten(x, 1)
@@ -68,14 +67,15 @@ class CNNCifar_tune(nn.Module):
 def train_cifar(config, checkpoint_dir=None, data_dir=None):
     net = CNNCifar_tune(config["l1"],
                         config["l2"],
-                        config["k1"],
-                        config["k2"],
-                        config["d1"],
-                        config["d2"],
+                        #config["k1"],
+                        #config["k2"],
+                        #config["d1"],
+                        #config["d2"],
                         config["d3"],
                         config["d4"],
-                        config["p1"],
-                        config["p2"])
+                        #config["p1"],
+                        #config["p2"])
+                        )
 
     device = "cpu"
     if torch.cuda.is_available():
@@ -184,20 +184,15 @@ def test_accuracy(net, device="cpu"):
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     train_dataset, test_dataset = get_dataset_tune()
     config = {
-        "l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-        "l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+        "l1": tune.sample_from(lambda _: 2 ** np.random.randint(4, 9)),
+        "l2": tune.sample_from(lambda _: 2 ** np.random.randint(4, 9)),
         "lr": tune.loguniform(1e-4, 1e-1),
-        #"mnt": tune.choice[(0.5, 0.7, 0.9)],
+        #"mnt": tune.grid_search[(0.5, 0.7, 0.9)],
         "batch_size": tune.choice([2, 4, 8, 16, 32, 64]),
-        "d1": tune.choice([0.0, 0.5, 0.8, 0.9]),
-        "d2": tune.choice([0.0, 0.5, 0.8, 0.9]),
+        "d4": tune.grid_search([0.0, 0.5, 0.8, 0.9]),
         "d3": tune.choice([0.0, 0.5, 0.8, 0.9]),
-        "d4": tune.choice([0.0, 0.5, 0.8, 0.9]),
-        "p1": tune.choice([2, 3]),
-        "p2": tune.choice([2, 3]),
-        "k1": tune.choice([2, 3, 4, 5]),
-        "k2": tune.choice([2, 3, 4, 5])
-
+        #"d2": tune.grid_search([0.0, 0.5, 0.8, 0.9]),
+        #"d1": tune.grid_search([0.0, 0.5, 0.8, 0.9])
     }
     scheduler = ASHAScheduler(
         metric="loss",
@@ -224,11 +219,9 @@ def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
         best_trial.last_result["accuracy"]))
 
     best_trained_model = CNNCifar_tune(best_trial.config["l1"], best_trial.config["l2"])
-    device = "cpu"
-    if torch.cuda.is_available():
-        device = "cuda:0"
-        if gpus_per_trial > 1:
-            best_trained_model = nn.DataParallel(best_trained_model)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if gpus_per_trial > 1:
+        best_trained_model = nn.DataParallel(best_trained_model)
     best_trained_model.to(device)
 
     best_checkpoint_dir = best_trial.checkpoint.value
