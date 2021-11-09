@@ -77,11 +77,8 @@ def train_cifar(config, checkpoint_dir=None, data_dir=None):
                         #config["p2"])
                         )
 
-    device = "cpu"
-    if torch.cuda.is_available():
-        device = "cuda:0"
-        if torch.cuda.device_count() > 1:
-            net = nn.DataParallel(net)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     net.to(device)
 
     criterion = nn.CrossEntropyLoss()

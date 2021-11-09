@@ -21,12 +21,12 @@ def args_parser():
                         help="the number of local epochs: E")
     parser.add_argument('--local_bs', type=int, default=10,
                         help="local batch size: B")
-    parser.add_argument('--lr', type=float, default=0.01,
+    parser.add_argument('--lr', type=float, default=0.013,
                         help='learning rate')
     parser.add_argument('--momentum', type=float, default=0.5,
                         help='SGD momentum (default: 0.5)')
     parser.add_argument('--alpha', type=float, default=0.1,
-                        help='alpha parameter of dirichlet distribution (default: 0.5)')
+                        help='alpha parameter of dirichlet distribution (default: 0.1)')
 
 
     # model arguments
@@ -54,7 +54,7 @@ def args_parser():
                         of classes")
     parser.add_argument('--gpu', default=1, help="To use cuda, set \
                         to a specific GPU ID. Default set to use CPU.")
-    parser.add_argument('--optimizer', type=str, default='sgd', help="type \
+    parser.add_argument('--optimizer', type=str, default='adam', help="type \
                         of optimizer")
     parser.add_argument('--iid', type=int, default=1,
                         help='Default set to IID. Set to 0 for non-IID.')
