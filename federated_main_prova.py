@@ -15,6 +15,7 @@ from update import LocalUp, FedAvg_1, test
 from implementation import shared_dataset
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from torchsummary import summary
 
 if __name__ == '__main__':
     #parse args and define paths
@@ -48,14 +49,15 @@ if __name__ == '__main__':
         device = torch.device("cpu")
 
     # Show model's details and set in training mode
-    print(glob_model)
+    summary(glob_model, (3, 32, 32))
     glob_model.train()
 
     if args.update:
         train_dataset_global, _, users_group = shared_dataset(train_dataset,
                                                                           num_images=1000,
                                                                           num_users=args.num_users,
-                                                                          alpha=0.1)
+                                                                          beta=0.1,
+                                                                            args=args)
         trainloader_global = DataLoader(train_dataset_global,
                              batch_size=16,
                              shuffle=True,
@@ -70,7 +72,7 @@ if __name__ == '__main__':
 
         epoch_loss = []
 
-        for epoch in tqdm(range(10)):
+        for epoch in tqdm(range(20)):
             batch_loss = []
 
             for batch_idx, (images, labels) in enumerate(trainloader_global):
@@ -130,10 +132,8 @@ if __name__ == '__main__':
         # select m random users between all users without repetition
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
 
+
         for idx in idxs_users:
-            print(users_group[idx])
-            print(type(users_group[idx]))
-            len(users_group[idx])
             local = LocalUp(args=args, dataset=train_dataset, idxs=users_group[idx])
             w, loss = local.train(model=copy.deepcopy(glob_model).to(device))
 
@@ -152,6 +152,7 @@ if __name__ == '__main__':
 
         # Print average  Loss
         loss_avg = sum(loss_local)/len(loss_local)
+        loss_train.append(loss_avg)
         print('Round {:3d}, Average Loss {:3f}'.format(iter, loss_avg))
 
     # Plot loss curve
@@ -164,12 +165,13 @@ if __name__ == '__main__':
     plt.figure()
     plt.title('Training Loss vs Communication rounds')
     plt.plot(range(len(loss_train)), loss_train, color='b')
-    plt.ylabel('train_loss')
-    plt.xlabel('Communication_rounds')
+    plt.ylabel('Train Loss')
+    plt.xlabel('Communication Rounds')
     plt.savefig(save_path+'fed_{}_{}_C{}_iid{}.png'.format(args.model,
                                                                args.epochs,
                                                                args.frac,
                                                                args.iid))
+
 
     # TESTING
     glob_model.eval()
