@@ -21,7 +21,7 @@ def args_parser():
                         help="the number of local epochs: E")
     parser.add_argument('--local_bs', type=int, default=10,
                         help="local batch size: B")
-    parser.add_argument('--lr', type=float, default=0.013,
+    parser.add_argument('--lr', type=float, default=0.07,
                         help='learning rate')
     parser.add_argument('--momentum', type=float, default=0.5,
                         help='SGD momentum (default: 0.5)')
@@ -67,6 +67,9 @@ def args_parser():
     parser.add_argument('--seed', type=int, default=1, help='random seed')
     #parser.add_argument('--iid_dirichlet', type=int, default=0,
                #         help='using Dirichlet distribution to divide CIFAR10 between users')
+
+    parser.add_argument('--update', type=int, default=0, help='Trying applying datasharing strategy')
+
 
     # - parse_args will take the arguments you provide on the command line
     # - when you run your program and interpret them according to the arguments

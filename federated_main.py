@@ -11,6 +11,7 @@ import numpy as np
 from tqdm import tqdm
 
 import torch
+from torch import nn
 import torchvision
 from tensorboardX import SummaryWriter
 
@@ -42,9 +43,10 @@ if __name__ == '__main__':
     if args.model == 'lenet':
         global_model = LeNet5(args=args)
     elif args.model == 'cnn':
-        global_model = CNNCifar(args=args)
+        global_model = CNNCifar()
     elif args.model == 'resnet':
-        global_model = torchvision.models.resnet18(pretrained=True)
+        global_model = torchvision.models.resnet18(pretrained=False)
+        global_model.fc = nn.Sequential(nn.Linear(512, 10))
 
     # Set the model to train and send it to device.
     global_model.to(device)

@@ -20,6 +20,8 @@ def cifar_iid(dataset, num_users):
         all_idxs = list(set(all_idxs) - dict_users[i])
     return dict_users
 
+
+
 def cifar_noniid(dataset, num_users, alpha):
     idxs = np.random.permutation(np.array(dataset.targets).shape[0])
     min_size = 0
