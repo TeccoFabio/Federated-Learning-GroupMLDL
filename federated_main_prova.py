@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
 
         for idx in idxs_users:
-            local = LocalUp(args=args, dataset=train_dataset, idxs=users_group[idx])
+            local = LocalUp(args=args, dataset=train_dataset, idxs=users_group[idx], round=iter)
             w, loss = local.train(model=copy.deepcopy(glob_model).to(device))
 
             if all_clients:
@@ -153,7 +153,7 @@ if __name__ == '__main__':
         # Print average  Loss
         loss_avg = sum(loss_local)/len(loss_local)
         loss_train.append(loss_avg)
-        print('Round {:3d}, Average Loss {:3f}'.format(iter, loss_avg))
+        print('\nGlobal Round {:3d}, Average Loss {:3f}'.format(iter, loss_avg))
 
     # Plot loss curve
     save_path = "../save/"
