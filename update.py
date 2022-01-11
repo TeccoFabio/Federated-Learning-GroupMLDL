@@ -209,8 +209,7 @@ class DatasetSplit_1(Dataset):
         return image, label
 
 class LocalUp(object):
-    def __init__(self, args, dataset=None, idxs=None, round=None):
-        self.round = round
+    def __init__(self, args, dataset=None, idxs=None):
         self.args = args
         self.selected_clients = []
         self.ldataloader_train = DataLoader(DatasetSplit_1(dataset, idxs),
@@ -250,8 +249,7 @@ class LocalUp(object):
                 loss.backward()
                 optimizer.step()
                 if batch_idx % 10 == 0:
-                    print('Round: {} Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                        self.round,
+                    print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                         iter,
                         batch_idx * len(images),
                         len(self.ldataloader_train.dataset),

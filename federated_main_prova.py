@@ -9,13 +9,8 @@ import torchvision
 from tensorboardX import SummaryWriter
 from models import CNNCifar, LeNet5
 import torch
-from torch import nn
 import numpy as np
 from update import LocalUp, FedAvg_1, test
-from implementation import shared_dataset
-from tqdm import tqdm
-from torch.utils.data import DataLoader
-from torchsummary import summary
 
 if __name__ == '__main__':
     #parse args and define paths
@@ -49,62 +44,8 @@ if __name__ == '__main__':
         device = torch.device("cpu")
 
     # Show model's details and set in training mode
-    summary(glob_model, (3, 32, 32))
+    print(glob_model)
     glob_model.train()
-
-    if args.update:
-        train_dataset_global, _, users_group = shared_dataset(train_dataset,
-                                                                          num_images=1000,
-                                                                          num_users=args.num_users,
-                                                                          beta=0.1,
-                                                                            args=args)
-        trainloader_global = DataLoader(train_dataset_global,
-                             batch_size=16,
-                             shuffle=True,
-                             num_workers=2)
-
-        # train global model with selected trainloader_global
-        optimizer = torch.optim.Adam(glob_model.parameters(), lr=args.lr)
-        if args.model == 'resnet':
-            criterion = nn.CrossEntropyLoss().to(device)
-        else:
-            criterion = nn.NLLLoss().to(device)
-
-        epoch_loss = []
-
-        for epoch in tqdm(range(20)):
-            batch_loss = []
-
-            for batch_idx, (images, labels) in enumerate(trainloader_global):
-                images, labels = images.to(device), labels.to(device)
-
-                optimizer.zero_grad()
-                outputs = glob_model(images)
-                loss = criterion(outputs, labels)
-                loss.backward()
-                optimizer.step()
-
-                if batch_idx % 50 == 0:
-                    print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                        epoch + 1, batch_idx * len(images), len(trainloader_global.dataset),
-                        100. * batch_idx / len(trainloader_global), loss.item()))
-                batch_loss.append(loss.item())
-
-            loss_avg = sum(batch_loss) / len(batch_loss)
-            print('\nTrain loss:', loss_avg)
-            epoch_loss.append(loss_avg)
-
-        # save model
-        save_path = "../save/"
-        try:
-            os.mkdir(save_path)
-        except FileExistsError:
-            pass
-        torch.save(glob_model.state_dict(), save_path + '/model_{}_epochs{}'.format(args.model, args.epochs))
-
-    else:
-        pass
-
 
     # copy weights
     w_glob = glob_model.state_dict()
@@ -132,9 +73,8 @@ if __name__ == '__main__':
         # select m random users between all users without repetition
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
 
-
         for idx in idxs_users:
-            local = LocalUp(args=args, dataset=train_dataset, idxs=users_group[idx], round=iter)
+            local = LocalUp(args=args, dataset=train_dataset, idxs=users_group[idx])
             w, loss = local.train(model=copy.deepcopy(glob_model).to(device))
 
             if all_clients:
@@ -152,8 +92,7 @@ if __name__ == '__main__':
 
         # Print average  Loss
         loss_avg = sum(loss_local)/len(loss_local)
-        loss_train.append(loss_avg)
-        print('\nGlobal Round {:3d}, Average Loss {:3f}'.format(iter, loss_avg))
+        print('Round {:3d}, Average Loss {:3f}'.format(iter, loss_avg))
 
     # Plot loss curve
     save_path = "../save/"
@@ -165,13 +104,12 @@ if __name__ == '__main__':
     plt.figure()
     plt.title('Training Loss vs Communication rounds')
     plt.plot(range(len(loss_train)), loss_train, color='b')
-    plt.ylabel('Train Loss')
-    plt.xlabel('Communication Rounds')
+    plt.ylabel('train_loss')
+    plt.xlabel('Communication_rounds')
     plt.savefig(save_path+'fed_{}_{}_C{}_iid{}.png'.format(args.model,
                                                                args.epochs,
                                                                args.frac,
                                                                args.iid))
-
 
     # TESTING
     glob_model.eval()

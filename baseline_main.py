@@ -6,7 +6,6 @@
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import os
-import numpy as np
 
 import torch
 from torch import nn
@@ -17,11 +16,9 @@ from utils import get_dataset, central_mod_details
 from options import args_parser
 from update import test_inference, test
 from models import CNNCifar, LeNet5
-from torchsummary import summary
-from torch.utils.tensorboard import SummaryWriter
+
 
 if __name__ == '__main__':
-    writer = SummaryWriter()
     args = args_parser()
     if args.model == 'lenet':
         global_model = LeNet5(args=args)
@@ -42,7 +39,7 @@ if __name__ == '__main__':
     # Set the model to train and send it to device.
     global_model.to(device)
     global_model.train()
-    summary(global_model, (3, 32, 32))
+    print(global_model)
     central_mod_details(args)
 
     # Training
@@ -64,8 +61,6 @@ if __name__ == '__main__':
         criterion = nn.CrossEntropyLoss().to(device)
     else:
         criterion = nn.NLLLoss().to(device)
-
-
 
     epoch_loss = []
 
@@ -119,50 +114,4 @@ if __name__ == '__main__':
     plt.ylabel('Train loss')
     plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
                                                  args.epochs))
-    """
-    dataiter = iter(trainloader)
-    images, labels = dataiter.next()
-    yhat = global_model(images)  # Give dummy batch to forward()
-
-    import hiddenlayer as hl
-
-    transforms = [hl.transforms.Prune('Constant')]  # Removes Constant nodes from graph.
-
-    graph = hl.build_graph(global_model, images, transforms=transforms)
-    graph.theme = hl.graph.THEMES['blue'].copy()
-    graph.save(save_path+'{}_hiddenlayer'.format(args.model), format='png')
-
-    from torchviz import make_dot
-
-    make_dot(yhat, params=dict(list(global_model.named_parameters()))).render(save_path+"{}_torchviz".format(args.model), format="png")
-
-    
-
-
-        # get some random training images
-        def matplotlib_imshow(img, one_channel=False):
-            if one_channel:
-                img = img.mean(dim=0)
-            img = img / 2 + 0.5  # unnormalize
-            npimg = img.numpy()
-            if one_channel:
-                plt.imshow(npimg, cmap="Greys")
-            else:
-                plt.imshow(np.transpose(npimg, (1, 2, 0)))
-
-        dataiter = iter(trainloader)
-        images, labels = dataiter.next()
-
-        # create grid of images
-        img_grid = torchvision.utils.make_grid(images)
-
-        # show images
-        matplotlib_imshow(img_grid, one_channel=True)
-
-        # write to tensorboard
-        writer.add_image('cifar10_images', img_grid)
-
-        writer.add_graph(global_model, images)
-        writer.close()
-    """
 
